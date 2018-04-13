@@ -8,23 +8,20 @@
 </head>
 <body>
   <header>
-    <h1>Authors</h1>
+    <h1>Create an Author</h1>
     <nav>
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/authors/new">Create a new Author</a></li>
+        <li><a href="/authors">Authors Index</a></li>
       </ul>
     </nav>
   </header><!-- /header -->
   <main>
-    <h2>List of Authors</h2>
-    <ul>
-      <% for(let i = 0; i < authors.length; i++){ %>
-        <li>
-          <a href="/authors/<%= authors[i].id%>"><%= authors[i].name %></a>
-        </li>
-      <%}%>
-    </ul>
+    <form action="/authors" method="POST">
+      <input type="text" name="name">
+      <button type="submit">add Author</button>
+    </form>
   </main>
+
 </body>
 </html>

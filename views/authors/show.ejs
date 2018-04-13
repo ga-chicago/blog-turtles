@@ -8,23 +8,20 @@
 </head>
 <body>
   <header>
-    <h1>Authors</h1>
+    <h1>Show Page for <%= author.name %></h1>
     <nav>
       <ul>
         <li><a href="/">Home</a></li>
-        <li><a href="/authors/new">Create a new Author</a></li>
+        <li><a href="/authors">Author Index</a></li>
       </ul>
     </nav>
   </header><!-- /header -->
   <main>
-    <h2>List of Authors</h2>
+    <h2>Author Attributes</h2>
     <ul>
-      <% for(let i = 0; i < authors.length; i++){ %>
-        <li>
-          <a href="/authors/<%= authors[i].id%>"><%= authors[i].name %></a>
-        </li>
-      <%}%>
+      <li>Name: <%= author.name %></li>
     </ul>
   </main>
+
 </body>
 </html>
