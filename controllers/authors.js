@@ -30,7 +30,6 @@ router.post('/', (req, res) => {
   });
 
 
-
 });
 
 router.get('/new', (req, res) => {
@@ -48,6 +47,19 @@ router.get('/:id', (req, res) => {
   });
 });
 
+router.delete('/:id', (req, res) => {
+  Authors.findByIdAndRemove(req.params.id, (err, deletedAuthor) => {
+    if(err) { 
+      console.error(err);
+      res.send("it didn't work check the console")
+    }
+    else {
+      console.log(deletedAuthor)
+      // send 'em back to the index
+      res.redirect('/authors')
+    }    
+  })
+})
 
 
 module.exports = router;
