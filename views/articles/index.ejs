@@ -15,6 +15,14 @@
 	 			<li><a href="/articles/new">Create a new Article</a></li>
 	 		</ul>
 	 	</nav>
+	 	<ul>
+	 		<% for (let i = 0; i < articles.length; i++) { -%>
+	 			<li>
+	 				<a href="/articles/<%= articles[i].id %>"><%= articles[i].title %></a>
+	 			</li>
+	 		<% } -%>
+
+	 	</ul>
 	 </header>
 
 </body>
