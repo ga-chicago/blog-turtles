@@ -2,6 +2,8 @@ const express = require('express');
 const app     = express();
 
 
+// run our db file
+require('./db/db');
 const authorsController = require('./controllers/authors');
 
 
