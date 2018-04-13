@@ -36,6 +36,19 @@ router.get('/new', (req, res) => {
   res.render('authors/new.ejs');
 });
 
+//edit 
+router.get('/:id/edit', (req, res) => {
+  Authors.findById(req.params.id, (err, foundAuthor) => {
+    if(err) console.log(err);
+    else {
+      res.render('authors/edit.ejs', { 
+        author: foundAuthor
+      })
+    }    
+  })
+})
+
+// show page
 router.get('/:id', (req, res) => {
 
   Authors.findById(req.params.id, (err, foundAuthor) => {
@@ -59,6 +72,15 @@ router.delete('/:id', (req, res) => {
       res.redirect('/authors')
     }    
   })
+})
+
+
+router.put('/:id', (req, res) => {
+  Authors.findByIdAndUpdate(req.params.id, req.body, (err, updatedAuthor) => {
+    if(err) console.log(err);
+    else res.redirect('/authors')
+  })
+
 })
 
 

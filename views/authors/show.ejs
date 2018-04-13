@@ -21,6 +21,7 @@
     <ul>
       <li>Name: <%= author.name %></li>
     </ul>
+    <p><a href="/authors/<%= author.id %>/edit">Edit author information</a></p>
     <form action="/authors/<%= author.id %>?_method=DELETE" method="POST">
       <button>Delete <%= author.name %></button>      
     </form>
