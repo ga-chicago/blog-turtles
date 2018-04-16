@@ -59,9 +59,17 @@ router.post('/', (req, res) => {
 	})
 })
 
+// delete article --  modify it to also remote it from that author's articles list ([{}])
 router.delete('/:id', (req, res)=>{
-	Articles.findByIdAndRemove(req.params.id, ()=>{
-		res.redirect('/articles');
+	Articles.findByIdAndRemove(req.params.id, (err, foundArticle)=>{
+	// 	// delete the article
+		Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
+			res.send(foundAuthor)
+			foundAuthor.articles.id(req.params.id).remove() // ODM and ORM commonly use this type of chaining
+			foundAuthor.save((err, data) => {
+				res.redirect('/articles');
+			})
+		})
 	});
 });
 
