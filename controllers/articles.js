@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Articles = require('../models/article.js')
+const Author = require('../models/authors.js')
 
 router.get('/', (req, res) => {
 	Articles.find((err, theArticlesIFound) => {
@@ -10,8 +11,14 @@ router.get('/', (req, res) => {
 	})
 })
 
+// new article
+// goal: make this get a list of authors
 router.get('/new', (req, res) => {
-	res.render('articles/new.ejs')
+	Author.find({}, (err, allAuthors) => {
+		res.render('articles/new.ejs', {
+			authors: allAuthors
+		})
+	})
 })
 
 // show
@@ -32,10 +39,18 @@ router.get('/:id/edit', (req, res)=>{
 	});
 });
 
-// update
+//create
 router.post('/', (req, res) => {
-	Articles.create(req.body, (err, createdArticle) => {
-		res.redirect('/articles')
+	// console.log(req.body); res.send(req.body);
+	// first get the author
+	Author.findById(req.body.authorId, (err, foundAuthor) => {
+		Articles.create(req.body, (err, createdArticle) => {
+			if(err) console.log(err);
+			foundAuthor.articles.push(createdArticle);
+			foundAuthor.save((err, data) => {			
+				res.redirect('/articles')
+			})
+		})		
 	})
 })
 
@@ -45,6 +60,7 @@ router.delete('/:id', (req, res)=>{
 	});
 });
 
+// update
 router.put('/:id', (req, res)=>{
 	Articles.findByIdAndUpdate(req.params.id, req.body, ()=>{
 		res.redirect('/articles');

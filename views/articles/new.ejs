@@ -18,9 +18,15 @@
 	 </header>
 
 	 <form action="/articles" method="POST">
+	 	<select name="authorId">
+			<% for (let i = 0; i < authors.length; i++) { -%>
+				 <option value="<%= authors[i].id %>"><%= authors[i].name %></option>
+	 		<% } -%>	 		
+	 	</select><br/>
+
 		<input type="text" name="title" /> <br>
 		<textarea name="body" rows="10" cols="100"></textarea>
-	 	<input type="submit" name="Publish!">
+	 	<input type="submit" value="Publish!">
 
 	 </form>
 
