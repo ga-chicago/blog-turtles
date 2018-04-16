@@ -16,5 +16,10 @@
 	 	</nav>		
 	</header>
 	<p><%= article.body %></p>
+	<section>
+    <form action="/articles/<%= article.id %>?_method=DELETE" method="post">
+        <input type="submit" value="Delete Article"/>
+    </form>
+</section>
 </body>
 </html>

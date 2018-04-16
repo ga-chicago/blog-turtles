@@ -22,11 +22,16 @@ router.get('/:id', (req, res) => {
 	})	
 })
 
-
 router.post('/', (req, res) => {
 	Articles.create(req.body, (err, createdArticle) => {
 		res.redirect('/articles')
 	})
 })
+
+router.delete('/:id', (req, res)=>{
+	Articles.findByIdAndRemove(req.params.id, ()=>{
+		res.redirect('/articles');
+	});
+});
 
 module.exports = router;

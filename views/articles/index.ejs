@@ -20,6 +20,9 @@
 	 			<li>
 	 				<a href="/articles/<%= articles[i].id %>"><%= articles[i].title %></a>
 	 			</li>
+	 			<form action="/articles/<%= articles[i].id %>?_method=DELETE" method="POST">
+	 				<button>Delete this article</button>
+	 			</form>
 	 		<% } -%>
 
 	 	</ul>
