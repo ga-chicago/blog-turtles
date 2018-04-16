@@ -21,6 +21,16 @@
     <ul>
       <li>Name: <%= author.name %></li>
     </ul>
+
+    <h3>Articles by this author</h3>
+    <ul>
+      <% for (let i = 0; i < author.articles.length; i++) { -%>
+        <li><a href="/articles/<%= author.articles[i]._id%>"><%= author.articles[i].title %></a></li>
+        
+      <% } -%>
+
+    </ul>
+
     <p><a href="/authors/<%= author.id %>/edit">Edit author information</a></p>
     <form action="/authors/<%= author.id %>?_method=DELETE" method="POST">
       <button>Delete <%= author.name %></button>      

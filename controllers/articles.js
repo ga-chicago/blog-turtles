@@ -25,6 +25,8 @@ router.get('/new', (req, res) => {
 router.get('/:id', (req, res) => {
 	Articles.findById(req.params.id, (err, thisArticle) => {
 		Author.findOne({ 'articles._id': req.params.id }, (err, foundAuthor) => {
+			if(err) console.log(err);
+			console.log(foundAuthor)
 			res.render('articles/show.ejs', {
 				article: thisArticle,
 				author: foundAuthor
