@@ -73,10 +73,23 @@ router.delete('/:id', (req, res)=>{
 	});
 });
 
-// update
+// update -- this now also needs to update the author's articles list
 router.put('/:id', (req, res)=>{
-	Articles.findByIdAndUpdate(req.params.id, req.body, ()=>{
-		res.redirect('/articles');
+	// find this article in articles collection
+	Articles.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, updatedArticle)=>{
+		// find the author with an article in their array that matches
+		Author.findOne({ 'articles._id': req.params.id }, (err2, foundAuthor) => {
+			// update article:
+			// delete old one
+			foundAuthor.articles.id(req.params.id).remove();
+			// push new one
+			foundAuthor.articles.push(updatedArticle)
+			// save the updated author to database
+			foundAuthor.save((err, data) => {
+				// let's go back to that article's show page
+				res.redirect('/articles/' + req.params.id)								
+			})
+		});
 	});
 });
 
