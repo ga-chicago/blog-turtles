@@ -24,8 +24,11 @@ router.get('/new', (req, res) => {
 // show
 router.get('/:id', (req, res) => {
 	Articles.findById(req.params.id, (err, thisArticle) => {
-		res.render('articles/show.ejs', {
-			article: thisArticle
+		Author.findOne({ 'articles._id': req.params.id }, (err, foundAuthor) => {
+			res.render('articles/show.ejs', {
+				article: thisArticle,
+				author: foundAuthor
+			})			
 		})
 	})	
 })
