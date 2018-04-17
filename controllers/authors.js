@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Authors = require('../models/authors');
+const Articles = require('../models/article')
 
 router.get('/', (req, res) => {
 
@@ -36,15 +37,15 @@ router.get('/new', (req, res) => {
   res.render('authors/new.ejs');
 });
 
-//edit 
+//edit
 router.get('/:id/edit', (req, res) => {
   Authors.findById(req.params.id, (err, foundAuthor) => {
     if(err) console.log(err);
     else {
-      res.render('authors/edit.ejs', { 
+      res.render('authors/edit.ejs', {
         author: foundAuthor
       })
-    }    
+    }
   })
 })
 
@@ -60,19 +61,32 @@ router.get('/:id', (req, res) => {
   });
 });
 
-router.delete('/:id', (req, res) => {
-  Authors.findByIdAndRemove(req.params.id, (err, deletedAuthor) => {
-    if(err) { 
-      console.error(err);
-      res.send("it didn't work check the console")
-    }
-    else {
-      console.log(deletedAuthor)
-      // send 'em back to the index
-      res.redirect('/authors')
-    }    
-  })
-})
+// router.delete('/:id', (req, res) => {
+//   Authors.findByIdAndRemove(req.params.id, (err, deletedAuthor) => {
+//     if(err) {
+//       console.error(err);
+//       res.send("it didn't work check the console")
+//     }
+//     else {
+//       // we want to get all the article id's associated
+//       // with the author
+//       const articleIds = [];
+
+//       for (let i = 0; i < deletedAuthor.articles.length; i++){
+//         articleIds.push(deletedAuthor.articles[i]._id);
+//       }
+
+//       Articles.remove({
+//         _id: {
+//           $in:
+//         }
+//       }, (err, data) => {
+//         res.redirect('/authors')
+//       });
+
+//     }
+//   })
+// })
 
 
 router.put('/:id', (req, res) => {
