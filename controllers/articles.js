@@ -3,19 +3,19 @@ const router = express.Router();
 const Articles = require('../models/article.js')
 const Author = require('../models/authors.js')
 
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
 
   try  {
-
-    const theArticlesIFound = await Articles.find();
+    console.log('hit')
+    const theArticlesIFound = await Artices.find();
 
     res.render('articles/index.ejs', {
       articles: theArticlesIFound
-    })
+    });
 
   } catch (err){
 
-    res.send(err);
+    next(err);
 
   }
 
@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
 
 // new article
 // goal: make this get a list of authors
-router.get('/new', async (req, res) => {
+router.get('/new', async (req, res, next) => {
 
   try {
      const allAuthors = await Author.find();
@@ -33,74 +33,111 @@ router.get('/new', async (req, res) => {
         });
 
   } catch (err) {
-    res.send(err)
+
+      next(err);
   }
 
 });
 
 // show
-router.get('/:id', (req, res) => {
-	Articles.findById(req.params.id, (err, thisArticle) => {
-		Author.findOne({ 'articles._id': req.params.id }, (err, foundAuthor) => {
-			if(err) console.log(err);
-			console.log(foundAuthor)
-			res.render('articles/show.ejs', {
-				article: thisArticle,
-				author: foundAuthor
-			})
-		})
-	})
-})
+router.get('/:id', async (req, res, next) => {
+  try {
+      const findArticle = Articles.findById(req.params.id);
+      const findAuthor  = Author.findOne({'articles._id': req.params.id});
+
+      // Promise All returns an array of the repsonse from DB queries,
+      // Using array destructing to save the corresponding responses
+      // as the variables thisArticle, and foundAuthor
+      const [thisArticle, foundAuthor] = await Promise.all([findArticle, findAuthor]);
+
+      res.render('articles/show.ejs', {
+        article: thisArticle,
+        author: foundAuthor
+      });
+
+  } catch (err) {
+
+    next(err);
+  }
+});
 
 // edit
-router.get('/:id/edit', (req, res)=>{
-	Articles.findById(req.params.id, (err, foundArticle)=>{
+router.get('/:id/edit', async (req, res, next)=>{
 
-    Author.find({}, (err, allAuthors) => {
-      // We can do this to find the author of the selected article
-      Author.findOne({'articles._id': req.params.id}, (err, foundArticleAuthor) => {
+  try {
 
-        res.render('articles/edit.ejs', {
-          article: foundArticle,
-          authors: allAuthors,
-          articleAuthor: foundArticleAuthor
-        });
-      });
-    });
-	});
+      const findArticle = Articles.findById(req.params.id);
+      const findAllAuthors = Author.find();
+      const findArticleAuthor = Author.findOne({'articles._id': req.params.id});
+
+      const [foundArticle, allAuthors, foundArticleAuthor] = await Promise.all([findArticle, findAllAuthors, findArticleAuthor]);
+
+      res.render('articles/edit.ejs', {
+            article: foundArticle,
+            authors: allAuthors,
+            articleAuthor: foundArticleAuthor
+          });
+
+  } catch (err) {
+
+      next(err);
+
+  }
+
+
+
 });
 
 //create
-router.post('/', (req, res) => {
+router.post('/', async (req, res, next) => {
 	// console.log(req.body); res.send(req.body);
-	// first get the author
-	Author.findById(req.body.authorId, (err, foundAuthor) => {
-		Articles.create(req.body, (err, createdArticle) => {
-			if(err) console.log(err);
-			foundAuthor.articles.push(createdArticle);
-			foundAuthor.save((err, data) => {
-				res.redirect('/articles')
-			})
-		})
-	})
+  console.log(req.body, ' this is post')
+  try {
+
+      const findAuthor = Author.findById(req.body.authorId);
+      const createArticle = Articles.create(req.body);
+
+      const [foundAuthor, createdArticle] = await Promise.all([findAuthor, createArticle]);
+
+      console.log(foundAuthor, createdArticle)
+      foundAuthor.articles.push(createdArticle);
+
+      await foundAuthor.save();
+      res.redirect('/articles');
+
+  } catch(err){
+    console.log('errroor')
+      next(err);
+  }
+
+
+
 })
 
 // delete article --  modify it to also remote it from that author's articles list ([{}])
-router.delete('/:id', (req, res)=>{
-	Articles.findByIdAndRemove(req.params.id, (err, foundArticle)=>{
-	// 	// delete the article
-		Author.findOne({'articles._id': req.params.id}, (err, foundAuthor) => {
-			res.send(foundAuthor)
-			foundAuthor.articles.id(req.params.id).remove() // ODM and ORM commonly use this type of chaining
-			foundAuthor.save((err, data) => {
-				res.redirect('/articles');
-			})
-		})
-	});
+router.delete('/:id', async (req, res, next)=>{
+  console.log(req.params.id, ' this is delete params')
+  try {
+
+      const deleteArticle = Articles.findByIdAndRemove(req.params.id);
+      const findAuthor    = Author.findOne({'articles._id': req.params.id});
+
+      const [deletedArticle, foundAuthor] = await Promise.all([deleteArticle, findAuthor]);
+      console.log(foundAuthor, 'foundAuthor')
+      foundAuthor.articles.id(req.params.id).remove()
+      await foundAuthor.save();
+      res.redirect('/articles');
+
+  } catch(err){
+    console.log(err)
+    next(err);
+    // throw new Error(400);
+  }
+
 });
 
 // update -- this now also needs to update the author's articles list
-router.put('/:id', async (req, res)=>{
+router.put('/:id', async (req, res, next)=>{
 
   try {
 
@@ -128,49 +165,16 @@ router.put('/:id', async (req, res)=>{
           // push new one
           foundAuthor.articles.push(updatedArticle)
           // save the updated author to database
-          const savedFoundAuthor = await foundAuthor.save()
+          await foundAuthor.save()
           res.redirect('/articles/' + req.params.id)
 
     }
 
 
   } catch (err){
-    res.send(err);
+    next(err)
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-	// // find this article in articles collection
-	// Articles.findByIdAndUpdate(req.params.id, req.body, {new: true}, (err, updatedArticle)=>{
-	// 	// find the author with an article in their array that matches
-	// 	Author.findOne({ 'articles._id': req.params.id }, (err2, foundAuthor) => {
-	// 		// update article:
- //      if(foundAuthor._id.toString() != req.body.authorId){
- //      // if the foundAuthor does not equal the req.body author
- //        foundAuthor.articles.id(req.params.id).remove();
- //        foundAuthor.save((err, savedFoundAuthor) => {
- //          Author.findById(req.body.authorId, (err, newAuthor) => {
- //            newAuthor.articles.push(updatedArticle);
- //            newAuthor.save((err, savedNewAuthor) => {
- //              res.redirect('/articles/' + req.params.id)
- //            })
- //        })
- //      })
- //      } else {
-
- //      }
-	// 	});
-	// });
 });
 
 module.exports = router;
