@@ -3,8 +3,6 @@ const router = express.Router();
 const Articles = require('../models/article.js')
 const Author = require('../models/authors.js')
 
-// WOAH IM ON A BRANCH
-
 router.get('/', async (req, res) => {
 
   try  {
@@ -106,15 +104,17 @@ router.put('/:id', async (req, res)=>{
 
   try {
 
-    const updatedArticle = Articles.findByIdAndUpdate(req.params.id, req.body, {new: true});
+    const findUpdatedArticle = Articles.findByIdAndUpdate(req.params.id, req.body, {new: true});
 
-    const foundAuthor =  Author.findOne({'articles._id': req.params.id });
+    const findFoundAuthor = Author.findOne({'articles._id': req.params.id });
 
+    // For running pararrell async taks
+    const [updatedArticle, foundAuthor ] = await Promise.all([findUpdatedArticle, findFoundAuthor])
 
     if(foundAuthor._id.toString() != req.body.authorId){
           foundAuthor.articles.id(req.params.id).remove();
 
-          const savedFoundAuthor = await foundAuthor.save();
+          await foundAuthor.save();
           const newAuthor = await Author.findById(req.body.authorId);
           newAuthor.articles.push(updatedArticle);
 
