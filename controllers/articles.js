@@ -5,19 +5,24 @@ const Author = require('../models/authors.js')
 
 router.get('/', async (req, res, next) => {
 
-  try  {
-    console.log('hit')
-    const theArticlesIFound = await Artices.find();
 
-    res.render('articles/index.ejs', {
-      articles: theArticlesIFound
-    });
 
-  } catch (err){
+           try  {
+            console.log('hit')
+            const theArticlesIFound = await Articles.find();
 
-    next(err);
+            res.render('articles/index.ejs', {
+              articles: theArticlesIFound,
+              username: req.session.username
+            });
 
-  }
+          } catch (err){
+
+            next(err);
+
+          }
+
+
 
 });
 
